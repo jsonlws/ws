@@ -1,0 +1,21 @@
+{
+    "redis":{
+        "host":"127.0.0.1",
+        "pwd":"",
+        "port":6379,
+        "pool_size":100
+    },
+    "jwt":{
+        "screat_key":"test"
+    },
+    "service":{
+        "port":"8080"
+    },
+    "rpc":{
+        "ip":"127.0.0.1",
+        "port":"8972"
+    },
+    "beanstalkd":{
+        "addr":"127.0.0.1:11300"
+    }
+}
