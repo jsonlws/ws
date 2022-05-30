@@ -11,7 +11,7 @@ func sendErrorMsg(user *User, msg string) {
 	user.UserLock.Lock()
 	defer user.UserLock.Unlock()
 
-	rspData := fmt.Sprintf(`{"aciton_type":"login_success","err_msg":%s}`, msg)
+	rspData := fmt.Sprintf(`{"action_type":"login_success","err_msg":%s}`, msg)
 	user.conn.WriteMessage(1, []byte(rspData))
 }
 
@@ -20,7 +20,7 @@ func sendPingMsg(user *User, oldTime uint) {
 	user.UserLock.Lock()
 	defer user.UserLock.Unlock()
 
-	rspData := fmt.Sprintf(`{"aciton_type":"ping","old_time":%d}`, oldTime)
+	rspData := fmt.Sprintf(`{"action_type":"ping","old_index":%d}`, oldTime)
 
 	user.conn.WriteMessage(1, []byte(rspData))
 }
@@ -28,10 +28,8 @@ func sendPingMsg(user *User, oldTime uint) {
 //发送登录成功或失败回复
 func sendLoginNoticeMsg(conn *websocket.Conn, isSuccess bool, oldTime uint) {
 
-	rspData := fmt.Sprintf(`{"aciton_type":"login_success","old_time":%d}`, oldTime)
+	rspData := fmt.Sprintf(`{"action_type":"login_success","old_index":%d}`, oldTime)
 	conn.WriteMessage(1, []byte(rspData))
-	return
-
 }
 
 //发送消息给某一个用户

@@ -21,11 +21,10 @@ func main() {
 	c := po.NewSendMsgServiceClient(conn)
 	// 调用服务端的SayHello
 	r, err := c.SendMsg(context.Background(), &po.SendMsgRequest{
-		RequestType: ws.Single,
-		Accepter:    "323278010",
-		Data:        map[string]string{"order_sn": "2022021015561395204583", "pay_status": "2"},
-		Msg:         "支付提醒测试",
-		UpdateType:  "PayNotice",
+		ActionType: ws.All,
+		Sender:     0,
+		Data:       map[string]string{"content": "msg"},
+		Receiver:   1,
 	})
 	if err != nil {
 		fmt.Printf("could not greet: %v", err)

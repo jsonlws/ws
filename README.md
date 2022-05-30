@@ -27,3 +27,5 @@ go build -ldflags "-s -w" -o ./../../bin/ws  [服务文件名]
 ./startall.sh log   [log_file]   [实时查看日志信息]
 
 windows系统下执行 [对应服务名].exe -f ./../config/config.json
+
+在根目录执行 gprc生产命令 protoc -I grpc/ grpc/sendmsg/sendMsg.proto --go_out=plugins=grpc:grpc/sendmsg

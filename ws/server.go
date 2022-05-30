@@ -90,7 +90,7 @@ func handleExternalCorrespond(conn *websocket.Conn, r *http.Request, hub *Hub, h
 	uids := r.URL.Query()["uid"][0]
 	//账号重复登录得问题
 	if oldConn, ok := hub.wsUserToConn[uids]; ok {
-		rspData := fmt.Sprintf(`{"aciton_type":"distance_login","err_msg":%s}`, "账号异地登录")
+		rspData := fmt.Sprintf(`{"action_type":"distance_login","err_msg":%s}`, "账号异地登录")
 		oldConn.conn.WriteMessage(1, []byte(rspData))
 		oldConn.conn.Close() //关闭连接
 	}
