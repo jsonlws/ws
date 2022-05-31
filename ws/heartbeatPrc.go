@@ -2,6 +2,7 @@ package ws
 
 import (
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -37,8 +38,9 @@ type HeartBucketLink struct {
 
 type Bucket struct {
 	BucketLink       []HeartBucketLink
-	CurrentTimeIndex uint //当前时间的桶索引
-	OutTimeIndex     uint //超时时间的桶索引
+	CurrentTimeIndex uint          //当前时间的桶索引
+	OutTimeIndex     uint          //超时时间的桶索引
+	Lock             *sync.RWMutex //定义读写锁
 }
 
 func NewHeartBeat() *Bucket {
@@ -57,12 +59,14 @@ func NewHeartBeat() *Bucket {
 		BucketLink:       bucket,
 		CurrentTimeIndex: uint(currentTimeIndex),
 		OutTimeIndex:     uint(outTimeIndex),
+		Lock:             new(sync.RWMutex),
 	}
 }
 
 //客户端第一次链接到ws时
 func (b *Bucket) FirstHeartHandler(clientId uint, user *User) uint {
-
+	b.Lock.Lock()
+	defer b.Lock.Unlock()
 	nowTime := time.Now().Unix()
 
 	bucketData := make(map[uint]HeartBucket)
@@ -84,10 +88,14 @@ func (b *Bucket) FirstHeartHandler(clientId uint, user *User) uint {
 
 //之后正常心跳处理
 func (b *Bucket) FutureHeartHandler(clientId uint, oldIndex uint, user *User) (uint, error) {
-	nowTime := time.Now().Unix()
+
 	if oldIndex >= bucketSize {
 		return 0, errors.New("客户端携带原数据错误")
 	}
+
+	b.Lock.Lock()
+	defer b.Lock.Unlock()
+	nowTime := time.Now().Unix()
 	//1.先删除旧桶的数据
 	oldData := (b.BucketLink[oldIndex])
 	delete(oldData.Data, clientId)
