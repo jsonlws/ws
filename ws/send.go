@@ -26,9 +26,9 @@ func sendPingMsg(user *User, oldTime uint) {
 }
 
 //发送登录成功或失败回复
-func sendLoginNoticeMsg(conn *websocket.Conn, isSuccess bool, oldTime uint) {
+func sendLoginNoticeMsg(conn *websocket.Conn, isSuccess bool, oldIndex uint) {
 
-	rspData := fmt.Sprintf(`{"action_type":"login_success","old_index":%d}`, oldTime)
+	rspData := fmt.Sprintf(`{"action_type":"login_success","old_index":%d}`, oldIndex)
 	conn.WriteMessage(1, []byte(rspData))
 }
 
