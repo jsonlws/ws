@@ -96,7 +96,19 @@ func (b *Bucket) FutureHeartHandler(clientId uint, oldIndex uint, user *User) (u
 
 	nowTime := time.Now().Unix()
 	//1.先删除旧桶的数据
-	delete(b.BucketLink[oldIndex].Data, clientId)
+
+	//为了防止客户端进行心跳攻击这里需要判断如果用户心跳发送间隔时间时小于超时时间一半的时间则判定为异常
+
+	if v, ok := b.BucketLink[oldIndex].Data[clientId]; ok {
+
+		delete(b.BucketLink[oldIndex].Data, clientId)
+
+		if (nowTime - v.HeartBeatTime) < int64(outTime/2) {
+			return 0, errors.New("心跳发送频繁")
+		}
+
+	}
+
 	//2.然后将数据放到新的桶中
 
 	//新的索引节点

@@ -150,6 +150,7 @@ func (c *User) readPump(hub *Hub, heartbeat *Bucket) {
 				oldTime, err := heartbeat.FutureHeartHandler(requestData.Sender, requestData.OldIndex, c)
 				if err != nil {
 					sendErrorMsg(c, err.Error())
+					hub.unregister <- c
 				} else {
 					sendPingMsg(c, oldTime)
 				}
