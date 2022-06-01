@@ -33,3 +33,5 @@ windows系统下执行 [对应服务名].exe -f ./../config/config.json
 
 //模拟心跳回复数据结构
 {"action_type":"ping","old_index":[服务器心跳每次返回的值],"sender":1}
+
+注意事项在在进行服务器数据之间发送时要将数据进行加密一次再往服务器发送
