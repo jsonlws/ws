@@ -29,16 +29,10 @@ type ReqMsgBody struct {
 var GloabChan = make(chan []byte, 1024)
 
 func (this *server) SendMsg(ctx context.Context, req *po.SendMsgRequest) (*po.SendMsgResponse, error) {
-	// conn, _, err := websocket.DefaultDialer.Dial("ws://127.0.0.1:"+viper.GetString("service.port")+"/?uid=0&flag=inside", nil)
-
-	// defer conn.Close()
 	sendByte, _ := json.Marshal(req)
 	log.Println("接收消息", string(sendByte))
 
-	//conn.WriteMessage(1, sendByte)
-
 	GloabChan <- sendByte
-	// go this.sendHeartHandler()
 
 	return &po.SendMsgResponse{
 		Code: 0,
