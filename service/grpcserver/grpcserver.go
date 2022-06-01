@@ -71,6 +71,7 @@ func WsHandler() {
 		for {
 			var msgBody ReqMsgBody
 			json.Unmarshal(<-reqData, &msgBody)
+			log.Println("接收数据", msgBody)
 			if msgBody.ActionType == "ping" || msgBody.ActionType == "login_success" {
 				pingData <- msgBody.OldIndex
 			}
@@ -83,7 +84,7 @@ func WsHandler() {
 			//每20秒执行一次
 			time.Sleep(20 * time.Second)
 			pingData := fmt.Sprintf(`{"sender":0,"action_type":"ping","old_index":%d}`, <-pingData)
-			fmt.Println(pingData)
+			log.Println("发送心跳数据", pingData)
 			conn.WriteMessage(1, []byte(pingData))
 
 		}

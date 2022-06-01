@@ -29,3 +29,7 @@ go build -ldflags "-s -w" -o ./../../bin/ws  [服务文件名]
 windows系统下执行 [对应服务名].exe -f ./../config/config.json
 
 在根目录执行 gprc生产命令 protoc -I grpc/ grpc/sendmsg/sendMsg.proto --go_out=plugins=grpc:grpc/sendmsg
+
+
+//模拟心跳回复数据结构
+{"action_type":"ping","old_index":[服务器心跳每次返回的值],"sender":1}

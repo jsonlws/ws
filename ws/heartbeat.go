@@ -27,24 +27,32 @@ const (
 
 //定义桶内容
 type HeartBucket struct {
-	ClientId      uint  //用户唯一标识id
-	HeartBeatTime int64 //最近一次心跳时间
-	User          *User
+	HeartBeatTime int64 //最近一次心跳发送时间
+	User          *User //ws中的用户连接信息
 }
 
 type HeartBucketLink struct {
-	Data map[uint]HeartBucket
+	Data map[uint]*HeartBucket
+	Lock *sync.RWMutex //定义读写锁
 }
 
 type Bucket struct {
-	BucketLink       []HeartBucketLink
-	CurrentTimeIndex uint          //当前时间的桶索引
-	OutTimeIndex     uint          //超时时间的桶索引
-	Lock             *sync.RWMutex //定义读写锁
+	BucketLink       []*HeartBucketLink
+	CurrentTimeIndex uint //当前时间的桶索引
+	OutTimeIndex     uint //超时时间的桶索引
 }
 
 func NewHeartBeat() *Bucket {
-	bucket := make([]HeartBucketLink, bucketSize)
+
+	bucket := make([]*HeartBucketLink, bucketSize)
+
+	for k, _ := range bucket {
+		linkData := &HeartBucketLink{
+			Data: make(map[uint]*HeartBucket),
+			Lock: new(sync.RWMutex),
+		}
+		bucket[k] = linkData
+	}
 
 	//当前时间
 	currentTime := time.Now().Unix()
@@ -59,28 +67,21 @@ func NewHeartBeat() *Bucket {
 		BucketLink:       bucket,
 		CurrentTimeIndex: uint(currentTimeIndex),
 		OutTimeIndex:     uint(outTimeIndex),
-		Lock:             new(sync.RWMutex),
 	}
 }
 
 //客户端第一次链接到ws时
 func (b *Bucket) FirstHeartHandler(clientId uint, user *User) uint {
-	b.Lock.Lock()
-	defer b.Lock.Unlock()
 	nowTime := time.Now().Unix()
-
-	bucketData := make(map[uint]HeartBucket)
-
-	bucketData[clientId] = HeartBucket{
-		ClientId:      clientId,
+	//计算出放置的桶索引节点
+	index := (b.CurrentTimeIndex + outTime - 1) % bucketSize
+	//因为map时非数据安全需要加锁处理
+	b.BucketLink[index].Lock.Lock()
+	defer b.BucketLink[index].Lock.Unlock()
+	//写入对应桶的map中以客户端id为key
+	b.BucketLink[index].Data[clientId] = &HeartBucket{
 		HeartBeatTime: nowTime,
 		User:          user,
-	}
-
-	index := (b.CurrentTimeIndex + outTime - 1) % bucketSize
-
-	b.BucketLink[index] = HeartBucketLink{
-		Data: bucketData,
 	}
 
 	return index
@@ -93,23 +94,20 @@ func (b *Bucket) FutureHeartHandler(clientId uint, oldIndex uint, user *User) (u
 		return 0, errors.New("客户端携带原数据错误")
 	}
 
-	b.Lock.Lock()
-	defer b.Lock.Unlock()
 	nowTime := time.Now().Unix()
 	//1.先删除旧桶的数据
-	oldData := (b.BucketLink[oldIndex])
-	delete(oldData.Data, clientId)
+	delete(b.BucketLink[oldIndex].Data, clientId)
 	//2.然后将数据放到新的桶中
-	bucketIndex := (b.CurrentTimeIndex + outTime - 1) % bucketSize
-	bucketData := make(map[uint]HeartBucket)
 
-	bucketData[clientId] = HeartBucket{
-		ClientId:      clientId,
+	//新的索引节点
+	bucketIndex := (b.CurrentTimeIndex + outTime - 1) % bucketSize
+
+	b.BucketLink[bucketIndex].Lock.Lock()
+	defer b.BucketLink[bucketIndex].Lock.Unlock()
+
+	b.BucketLink[bucketIndex].Data[clientId] = &HeartBucket{
 		HeartBeatTime: nowTime,
 		User:          user,
-	}
-	b.BucketLink[bucketIndex] = HeartBucketLink{
-		Data: bucketData,
 	}
 
 	return bucketIndex, nil
