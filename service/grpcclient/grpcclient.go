@@ -21,7 +21,7 @@ func main() {
 	c := po.NewSendMsgServiceClient(conn)
 	// 调用服务端的SayHello
 	r, err := c.SendMsg(context.Background(), &po.SendMsgRequest{
-		ActionType: ws.Single,
+		ActionType: ws.All,
 		Sender:     0,
 		Data:       map[string]string{"content": "msg"},
 		Receiver:   1,

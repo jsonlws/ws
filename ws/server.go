@@ -80,9 +80,6 @@ func WsHandle(w http.ResponseWriter, r *http.Request, hub *Hub, heartbeat *Bucke
 	//得到连接后，就可以开始读写数据了
 	go user.readPump(hub, heartbeat)
 
-	//发送广播消息
-	sendBroadcastMsg(user)
-
 }
 
 //处理外部部通信

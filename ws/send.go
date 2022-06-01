@@ -50,10 +50,3 @@ func sendGroupMsg(hub *Hub, groupId string, respData []byte) {
 		}
 	}
 }
-
-//发送广播消息
-func sendBroadcastMsg(user *User) {
-	for data := range user.msg {
-		go user.conn.WriteMessage(1, data)
-	}
-}

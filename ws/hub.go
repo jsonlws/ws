@@ -53,19 +53,15 @@ func (h *Hub) Run() {
 			//绑定组关系
 			h.groupList[user.GroupId] = append(h.groupList[user.GroupId], user)
 			h.wsUserToConn[user.Uid] = user
+		//处理用户下线
 		case user := <-h.unregister:
 			//删除链接信息
 			delete(h.wsUserToConn, user.Uid)
 			user.conn.Close()
 		case data := <-h.broadcast:
 			//从广播chan中取消息，然后遍历给每个用户，发送到用户的msg中
-			for k, u := range h.wsUserToConn {
-				select {
-				case u.msg <- data:
-				default:
-					close(u.msg)
-					delete(h.wsUserToConn, k)
-				}
+			for _, u := range h.wsUserToConn {
+				go u.conn.WriteMessage(1, data)
 			}
 		}
 	}
