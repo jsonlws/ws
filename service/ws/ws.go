@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
+	myHttp "jsonlwsim/http"
+	"jsonlwsim/ws"
 	"log"
 	"net/http"
-	myHttp "yunyuim/http"
-	"yunyuim/ws"
 
 	"github.com/spf13/viper"
 )

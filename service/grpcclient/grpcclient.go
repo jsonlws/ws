@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	po "yunyuim/grpc/sendmsg"
-	"yunyuim/ws"
+	po "jsonlwsim/grpc/sendmsg"
+	"jsonlwsim/ws"
 
 	"google.golang.org/grpc"
 )

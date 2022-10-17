@@ -1,12 +1,12 @@
 package ws
 
 import (
+	"jsonlwsim/lib"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
-	"yunyuim/lib"
 
 	"github.com/gorilla/websocket"
 )
