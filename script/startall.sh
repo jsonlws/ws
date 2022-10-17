@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./servicedef.sh
+source ./servicedefine.sh
 
 #判断程序是否已经在运行
 status_script(){
@@ -19,10 +19,12 @@ status_script(){
 
 #启动脚本，先判断脚本是否已经在运行
 start_script(){
+    #获取当前重启脚步的时间作为日志文件名
+    time=$(date "+%Y%m%d")
     echo '启动服务中...'
     for loop in ${server_array[@]}
     do 
-        nohup ./../bin/${loop}_server -f ./../config/config.json  > ./../logs/${loop}.log 2>&1 &
+        nohup ./../bin/${loop}_server -f ./../config/config.json > ./../logs/${loop}${time}.log 2>&1 &
         echo -e ${loop}'程序启动成功\033[32m success  \033[0m'
     done
     echo '所有服务启动完毕'
@@ -61,9 +63,10 @@ help_script(){
 
 #日志
 log_script(){
+    time=$(date "+%Y%m%d")
     if echo "${server_array[@]}" | grep -w ${1} &>/dev/null; 
     then
-        tail -f ./../logs/${1}.log
+        tail -f ./../logs/${1}${time}.log
     else
         echo -e "文件名错误或缺少需要查看日志文件名,可选项如下"
         for loop in ${server_array[@]}

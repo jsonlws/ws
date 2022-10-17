@@ -8,11 +8,13 @@ option go_package ="../sendmsg;sendmsg";
 
 //定义结构体
 message SendMsgRequest {
+
     //定义用户名
-    string action_type = 1;
-    int64 sender = 2;
+    string requestType = 1;
+    string receiver = 2;
     map<string,string> data = 3;
-    int64 receiver = 4;
+    string updateType = 4;
+    string msg = 5;
 }
 
 

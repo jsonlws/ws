@@ -1,12 +1,12 @@
 {
     "redis":{
-        "host":"127.0.0.1",
-        "pwd":"",
+        "host":"r-wz90qgeemw26f24hcgpd.redis.rds.aliyuncs.com",
+        "pwd":"r-wz90qgeemw26999444",
         "port":6379,
         "pool_size":100
     },
     "jwt":{
-        "screat_key":"test"
+        "screat_key":"zjyunyu"
     },
     "service":{
         "port":"8080"
@@ -16,6 +16,6 @@
         "port":"8972"
     },
     "beanstalkd":{
-        "addr":"127.0.0.1:11300"
+        "addr":"47.106.192.18:11300"
     }
 }

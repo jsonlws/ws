@@ -1,9 +1,15 @@
 
+###
+ # @Author: Qidianyu Team 517523174@qq.com
+ # @LastEditors: 大鱼
+ # @Copyright:  (c) 2016~2023 https://www.qidianyu.com All rights reserved
+ # @Licensed: Qidianyu 并不是自由软件，未经许可不能去掉相关版权!
+### 
 # !/bin/bash
 
 #构建所有的服务脚本
 
-source ./servicedef.sh
+source ./servicedefine.sh
 
 #编译成linux下可执行文件
 linux_script(){

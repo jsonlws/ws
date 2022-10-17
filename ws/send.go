@@ -6,47 +6,36 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//发送错误消息提示
-func sendErrorMsg(user *User, msg string) {
-	user.UserLock.Lock()
-	defer user.UserLock.Unlock()
-
-	rspData := fmt.Sprintf(`{"action_type":"login_success","err_msg":%s}`, msg)
-	user.conn.WriteMessage(1, []byte(rspData))
-}
-
 //发送心态回复
-func sendPingMsg(user *User, oldTime uint) {
-	user.UserLock.Lock()
-	defer user.UserLock.Unlock()
-
-	rspData := fmt.Sprintf(`{"action_type":"ping","old_index":%d}`, oldTime)
-
-	user.conn.WriteMessage(1, []byte(rspData))
+func sendPingMsg(hub *Hub, connInfo *websocket.Conn, oldTime uint, msgId string) {
+	rspData := fmt.Sprintf(`{"updateType":"ping","old_time":%d,"messageId":%s}`, oldTime, msgId)
+	hub.singleMsg <- &SingleChanDef{
+		MsgByte: []byte(rspData),
+		WsConn:  connInfo,
+	}
 }
 
 //发送登录成功或失败回复
-func sendLoginNoticeMsg(conn *websocket.Conn, isSuccess bool, oldIndex uint) {
-
-	rspData := fmt.Sprintf(`{"action_type":"login_success","old_index":%d}`, oldIndex)
+func sendLoginNoticeMsg(conn *websocket.Conn, isSuccess bool, oldTime uint) {
+	rspData := `{"updateType":"AuthenticationFailure"}`
+	if isSuccess {
+		rspData = fmt.Sprintf(`{"updateType":"AuthenticationSuccess","old_time":%d}`, oldTime)
+	}
 	conn.WriteMessage(1, []byte(rspData))
 }
 
 //发送消息给某一个用户
-func sendSingleMsg(userConn *User, receiver string, respData []byte) {
-	userConn.UserLock.Lock()
-	defer userConn.UserLock.Unlock()
-	userConn.conn.WriteMessage(1, respData)
+func sendSingleMsg(hub *Hub, connInfo *websocket.Conn, respData []byte) {
+	hub.singleMsg <- &SingleChanDef{
+		MsgByte: respData,
+		WsConn:  connInfo,
+	}
 }
 
-//发送消息一个组中的所有连接对象
+//发送群组消息
 func sendGroupMsg(hub *Hub, groupId string, respData []byte) {
-	if connList, ok := hub.groupList[groupId]; ok {
-		if len(connList) == 0 {
-			return
-		}
-		for _, connInfo := range connList {
-			go sendSingleMsg(connInfo, connInfo.Uid, respData)
-		}
+	hub.groupMsg <- &GroupChanDef{
+		MsgByte: respData,
+		GroupId: groupId,
 	}
 }
